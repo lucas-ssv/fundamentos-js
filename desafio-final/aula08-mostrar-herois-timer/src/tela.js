@@ -1,0 +1,124 @@
+const util = Util;
+
+const ID_CONTEUDO = "conteudo";
+const BTN_JOGAR = "jogar";
+const BTN_MOSTRAR_TUDO = "mostrarTudo";
+const ID_MENSAGEM = "mensagem";
+const CLASSE_INVISIBLE = "invisible";
+const ID_CARREGANDO = "carregando";
+const ID_CONTADOR = "contador";
+const ID_BTN_MOSTRAR_TUDO = "mostrarTudo";
+const MENSAGENS = {
+    success: {
+        text: "Combinação correta",
+        class: "alert-success",
+    },
+    error: {
+        text: "Combinação incorreta",
+        class: "alert-danger",
+    },
+};
+
+class Tela {
+    static obterCodigoHtml(item) {
+        return `
+            <div class="col-md-3">
+                <div class="card" style="width: 50%" onclick="window.verificarSelecao('${item.id}', '${item.name}')">
+                    <img
+                        src="${item.img}"
+                        name="${item.name}"
+                        class="card-img-top"
+                        alt="..."
+                    />
+                </div>
+                <br />
+            </div>
+        `;
+    }
+
+    static configurarBotaoVerificarSelecao(funcaoOnClick) {
+        window.verificarSelecao = funcaoOnClick;
+    }
+
+    static alterarConteudoHtml(codigoHtml) {
+        const conteudo = document.getElementById("conteudo");
+        conteudo.innerHTML = codigoHtml;
+    }
+
+    static gerarStringPelaImagem(items) {
+        return items.map(Tela.obterCodigoHtml).join("");
+    }
+
+    static atualizarImagens(items) {
+        const codigoHtml = Tela.gerarStringPelaImagem(items);
+        Tela.alterarConteudoHtml(codigoHtml);
+    }
+
+    static configurarBotaoJogar(funcaoOnClick) {
+        const btnJogar = document.getElementById(BTN_JOGAR);
+        btnJogar.onclick = funcaoOnClick;
+    }
+
+    static exibirHerois(heroName, img) {
+        const elementosHtml = document.getElementsByName(heroName);
+        elementosHtml.forEach((item) => (item.src = img));
+    }
+
+    static async showMessage(success = true) {
+        const element = document.getElementById(ID_MENSAGEM);
+        if (success) {
+            element.classList.remove(MENSAGENS.error.class);
+            element.classList.add(MENSAGENS.success.class);
+            element.innerText = MENSAGENS.success.text;
+        } else {
+            element.classList.remove(MENSAGENS.success.class);
+            element.classList.add(MENSAGENS.error.class);
+            element.innerText = MENSAGENS.error.text;
+        }
+
+        element.classList.remove(CLASSE_INVISIBLE);
+
+        await util.timeout(1000);
+        element.classList.add(CLASSE_INVISIBLE);
+    }
+
+    static showLoading(show = true) {
+        const loading = document.getElementById(ID_CARREGANDO);
+        if (show) {
+            loading.classList.remove(CLASSE_INVISIBLE);
+            return;
+        }
+
+        loading.classList.add(CLASSE_INVISIBLE);
+    }
+
+    static startCount() {
+        let countTo = 3;
+        const elementCount = document.getElementById(ID_CONTADOR);
+
+        const identifyText = "$$contador";
+        const textDefault = `Começando em ${identifyText} segundos...`;
+
+        const updateText = () =>
+            (elementCount.innerHTML = textDefault.replace(
+                identifyText,
+                countTo--
+            ));
+
+        updateText();
+
+        const idInterval = setInterval(updateText, 1000);
+        return idInterval;
+    }
+
+    static clearCount(idInterval) {
+        clearInterval(idInterval);
+
+        document.getElementById(ID_CONTADOR).innerHTML = "";
+    }
+
+    static configurarBotaoMostrarTudo(funcaoOnClick) {
+        const btnMostrarTudo = document.getElementById(ID_BTN_MOSTRAR_TUDO);
+        btnMostrarTudo.onclick = funcaoOnClick;
+    }
+}
